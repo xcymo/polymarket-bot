@@ -12,12 +12,10 @@ pub mod trader_profile;
 #[cfg(test)]
 mod tests;
 
-use crate::error::Result;
-use crate::types::{Market, Side};
+use crate::types::Side;
 use chrono::{DateTime, Timelike, Utc};
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 /// Trade record for analysis
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -279,7 +277,7 @@ impl TradeAnalyzer {
         }
     }
 
-    fn analyze_exits(&self, trades: &[&TradeRecord]) -> ExitInsights {
+    fn analyze_exits(&self, _trades: &[&TradeRecord]) -> ExitInsights {
         ExitInsights::default()
     }
 

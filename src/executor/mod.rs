@@ -3,7 +3,7 @@
 use crate::client::ClobClient;
 use crate::config::RiskConfig;
 use crate::error::{BotError, Result};
-use crate::types::{Order, OrderStatus, OrderType, Signal, Trade};
+use crate::types::{Order, OrderType, Signal, Trade};
 use rust_decimal::Decimal;
 use std::collections::HashMap;
 use tokio::sync::RwLock;

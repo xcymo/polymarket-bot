@@ -98,7 +98,7 @@ mod tests {
         }
         
         let insights = analyzer.analyze_trader("test_trader");
-        let recs = analyzer.generate_recommendations(&insights);
+        let _recs = analyzer.generate_recommendations(&insights);
         
         // Should have some recommendations
         assert!(insights.win_rate > 0.5);

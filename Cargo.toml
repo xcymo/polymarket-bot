@@ -60,4 +60,3 @@ mockall = "0.13"
 [[bin]]
 name = "polymarket-bot"
 path = "src/main.rs"
-rand = "0.8"

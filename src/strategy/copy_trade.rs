@@ -2,7 +2,7 @@
 //!
 //! Monitor successful traders' positions and copy their trades.
 
-use crate::error::{BotError, Result};
+use crate::error::Result;
 use crate::types::{Side, Signal};
 use chrono::{DateTime, Utc};
 use reqwest::Client;
@@ -37,16 +37,20 @@ pub struct CopyTrader {
     /// Copy ratio (0.0 - 1.0, how much of their position to copy)
     copy_ratio: f64,
     /// Minimum trader profit to follow a trade
+    #[allow(dead_code)]
     min_trader_profit: Decimal,
 }
 
 #[derive(Debug, Clone)]
 struct Position {
+    #[allow(dead_code)]
     market_id: String,
     token_id: String,
     side: Side,
     size: Decimal,
+    #[allow(dead_code)]
     entry_price: Decimal,
+    #[allow(dead_code)]
     timestamp: DateTime<Utc>,
 }
 
@@ -132,7 +136,7 @@ impl CopyTrader {
                         }
 
                         // Check for closed positions (exits)
-                        let current_markets: std::collections::HashSet<_> = 
+                        let _current_markets: std::collections::HashSet<_> = 
                             known.keys().cloned().collect();
                         
                         // TODO: Detect exits and generate sell signals

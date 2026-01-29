@@ -3,7 +3,6 @@
 //! Implements EIP-712 typed data signing for order authentication.
 
 use crate::error::{BotError, Result};
-use ethers::core::k256::ecdsa::SigningKey;
 use ethers::signers::{LocalWallet, Signer};
 use ethers::types::{Address, H256, U256};
 use ethers::utils::keccak256;

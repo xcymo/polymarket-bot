@@ -5,7 +5,6 @@
 use crate::client::PolymarketClient;
 use crate::config::Config;
 use crate::error::Result;
-use crate::monitor::PerformanceStats;
 use crate::storage::Database;
 use reqwest::Client;
 use rust_decimal::Decimal;
@@ -72,6 +71,7 @@ struct TelegramUpdate {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct TelegramMessage {
     message_id: i64,
     from: Option<TelegramUser>,
@@ -80,6 +80,7 @@ struct TelegramMessage {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct TelegramUser {
     id: i64,
     first_name: String,
@@ -91,6 +92,7 @@ struct TelegramChat {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct GetUpdatesResponse {
     ok: bool,
     result: Vec<TelegramUpdate>,

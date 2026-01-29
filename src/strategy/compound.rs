@@ -35,8 +35,10 @@ pub struct CompoundStrategy {
 #[derive(Debug, Clone)]
 struct TradeResult {
     pnl: Decimal,
+    #[allow(dead_code)]
     edge: Decimal,
     confidence: Decimal,
+    #[allow(dead_code)]
     timestamp: chrono::DateTime<Utc>,
 }
 

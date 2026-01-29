@@ -5,7 +5,7 @@
 
 use crate::error::Result;
 use crate::types::{Market, Side, Signal};
-use chrono::{DateTime, Utc, Timelike};
+use chrono::{DateTime, Utc};
 use rust_decimal::Decimal;
 use rust_decimal_macros::dec;
 use serde::Deserialize;
@@ -30,6 +30,7 @@ pub struct PricePoint {
 
 #[derive(Debug, Deserialize)]
 struct BinancePrice {
+    #[allow(dead_code)]
     symbol: String,
     price: String,
 }

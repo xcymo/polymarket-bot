@@ -8,7 +8,6 @@ use crate::config::LlmConfig;
 use crate::error::{BotError, Result};
 use chrono::{Duration, Utc};
 use reqwest::Client;
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use tokio::sync::mpsc;
 

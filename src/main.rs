@@ -12,7 +12,6 @@ use polymarket_bot::{
         processor::SignalProcessor,
         telegram::TelegramBotSource,
         twitter::{TwitterSource, TwitterRssSource},
-        source::SourceAggregator,
         ParsedSignal, RawSignal, SignalSource,
     },
     model::{EnsembleModel, LlmModel, ProbabilityModel},
@@ -22,7 +21,6 @@ use polymarket_bot::{
     strategy::{
         SignalGenerator,
         copy_trade::{CopyTrader, TopTrader},
-        compound::CompoundStrategy,
     },
     telegram::{TelegramBot, CommandHandler, BotCommand},
 };
@@ -254,9 +252,9 @@ async fn run_bot(config: Config, dry_run: bool) -> anyhow::Result<()> {
     // Spawn parsed signal handler (trades based on external signals)
     {
         let notifier_for_signals = notifier.clone();
-        let executor_for_signals = executor.clone();
-        let db_for_signals = db.clone();
-        let dry_run_mode = dry_run;
+        let _executor_for_signals = executor.clone();
+        let _db_for_signals = db.clone();
+        let _dry_run_mode = dry_run;
         
         tokio::spawn(async move {
             while let Some(signal) = parsed_signal_rx.recv().await {
@@ -339,10 +337,10 @@ async fn run_bot(config: Config, dry_run: bool) -> anyhow::Result<()> {
                 tracing::info!("Following address: {}", address);
             }
             
-            let executor_for_copy = executor.clone();
+            let _executor_for_copy = executor.clone();
             let notifier_for_copy = notifier.clone();
             let delay_secs = copy_config.delay_secs;
-            let dry_run_copy = dry_run;
+            let _dry_run_copy = dry_run;
             
             tokio::spawn(async move {
                 let mut interval = tokio::time::interval(Duration::from_secs(30));

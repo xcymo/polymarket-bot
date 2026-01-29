@@ -4,7 +4,7 @@
 mod tests {
     use super::super::compound::*;
     use crate::config::{RiskConfig, StrategyConfig};
-    use rust_decimal::Decimal;
+    
     use rust_decimal_macros::dec;
 
     fn make_test_config() -> (StrategyConfig, RiskConfig) {

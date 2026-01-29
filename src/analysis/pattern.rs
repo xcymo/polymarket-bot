@@ -60,7 +60,7 @@ fn detect_contrarian(trades: &[TradeRecord]) -> Option<TradingPattern> {
     })
 }
 
-fn detect_momentum(trades: &[TradeRecord]) -> Option<TradingPattern> {
+fn detect_momentum(_trades: &[TradeRecord]) -> Option<TradingPattern> {
     // Momentum: buys when price is moving in one direction
     // Would need price history to detect properly
     None

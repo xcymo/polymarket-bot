@@ -4,7 +4,7 @@
 //! Requires user authentication (not bot API) to access group messages.
 
 use super::{RawSignal, SignalSource, TelegramIngesterConfig};
-use crate::error::{BotError, Result};
+use crate::error::Result;
 use async_trait::async_trait;
 use chrono::Utc;
 use tokio::sync::mpsc;
@@ -12,17 +12,20 @@ use tokio::sync::mpsc;
 /// Telegram group monitor
 pub struct TelegramSource {
     config: TelegramIngesterConfig,
+    #[allow(dead_code)]
     author_trust: std::collections::HashMap<String, f64>,
 }
 
 impl TelegramSource {
     pub fn new(
         config: TelegramIngesterConfig,
-        author_trust: std::collections::HashMap<String, f64>,
+        #[allow(dead_code)]
+    author_trust: std::collections::HashMap<String, f64>,
     ) -> Self {
         Self { config, author_trust }
     }
 
+    #[allow(dead_code)]
     fn get_trust(&self, author: &str) -> f64 {
         self.author_trust.get(author).copied().unwrap_or(0.3)
     }
@@ -34,7 +37,7 @@ impl SignalSource for TelegramSource {
         "telegram"
     }
 
-    async fn run(&self, tx: mpsc::Sender<RawSignal>) -> Result<()> {
+    async fn run(&self, _tx: mpsc::Sender<RawSignal>) -> Result<()> {
         // Note: Full grammers implementation requires:
         // 1. Session management (login flow)
         // 2. MTProto connection

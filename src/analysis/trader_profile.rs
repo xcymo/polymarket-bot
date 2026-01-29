@@ -1,6 +1,6 @@
 //! Trader profiling and categorization
 
-use super::{TraderInsights, TradeRecord, TradeOutcome};
+use super::TraderInsights;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 

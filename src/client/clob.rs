@@ -17,6 +17,7 @@ pub struct ClobClient {
     pub http: Client,
     base_url: String,
     signer: PolySigner,
+    #[allow(dead_code)]
     funder: Option<String>,
     credentials: Arc<RwLock<Option<ApiCredentials>>>,
 }
