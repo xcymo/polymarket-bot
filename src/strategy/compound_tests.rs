@@ -102,4 +102,130 @@ mod tests {
         assert!((stats.win_rate - 0.666).abs() < 0.01);
         assert_eq!(stats.total_pnl, dec!(120));
     }
+
+    #[test]
+    fn test_all_losses() {
+        let (strategy_config, risk_config) = make_test_config();
+        let mut strategy = CompoundStrategy::new(strategy_config, risk_config, dec!(1000));
+        
+        for _ in 0..5 {
+            strategy.record_result(dec!(-50), dec!(0.10), dec!(0.60));
+        }
+        
+        let stats = strategy.get_stats();
+        assert_eq!(stats.wins, 0);
+        assert_eq!(stats.lose_streak, 5);
+        assert_eq!(stats.total_pnl, dec!(-250));
+    }
+
+    #[test]
+    fn test_all_wins() {
+        let (strategy_config, risk_config) = make_test_config();
+        let mut strategy = CompoundStrategy::new(strategy_config, risk_config, dec!(1000));
+        
+        for _ in 0..5 {
+            strategy.record_result(dec!(100), dec!(0.10), dec!(0.70));
+        }
+        
+        let stats = strategy.get_stats();
+        assert_eq!(stats.wins, 5);
+        assert_eq!(stats.win_streak, 5);
+        assert_eq!(stats.total_pnl, dec!(500));
+        assert!((stats.win_rate - 1.0).abs() < 0.001);
+    }
+
+    #[test]
+    fn test_balance_growth() {
+        let (strategy_config, risk_config) = make_test_config();
+        let mut strategy = CompoundStrategy::new(strategy_config, risk_config, dec!(1000));
+        
+        strategy.update_balance(dec!(2000));
+        
+        let stats = strategy.get_stats();
+        assert_eq!(stats.growth_from_initial, dec!(2.0));
+    }
+
+    #[test]
+    fn test_balance_loss() {
+        let (strategy_config, risk_config) = make_test_config();
+        let mut strategy = CompoundStrategy::new(strategy_config, risk_config, dec!(1000));
+        
+        strategy.update_balance(dec!(800));
+        
+        let stats = strategy.get_stats();
+        // growth_from_initial tracks peak, not current balance
+        // When balance drops, peak stays at initial (1000)
+        assert_eq!(stats.growth_from_initial, dec!(1.0));
+    }
+
+    #[test]
+    fn test_consecutive_wins_then_losses() {
+        let (strategy_config, risk_config) = make_test_config();
+        let mut strategy = CompoundStrategy::new(strategy_config, risk_config, dec!(1000));
+        
+        // 3 wins
+        for _ in 0..3 {
+            strategy.record_result(dec!(50), dec!(0.10), dec!(0.70));
+        }
+        assert_eq!(strategy.get_stats().win_streak, 3);
+        
+        // 2 losses
+        for _ in 0..2 {
+            strategy.record_result(dec!(-25), dec!(0.10), dec!(0.60));
+        }
+        
+        let stats = strategy.get_stats();
+        assert_eq!(stats.win_streak, 0);
+        assert_eq!(stats.lose_streak, 2);
+        assert_eq!(stats.total_trades, 5);
+    }
+
+    #[test]
+    fn test_zero_pnl_trade() {
+        let (strategy_config, risk_config) = make_test_config();
+        let mut strategy = CompoundStrategy::new(strategy_config, risk_config, dec!(1000));
+        
+        strategy.record_result(dec!(0), dec!(0.10), dec!(0.70));
+        
+        let stats = strategy.get_stats();
+        assert_eq!(stats.total_trades, 1);
+        assert_eq!(stats.total_pnl, dec!(0));
+    }
+
+    #[test]
+    fn test_small_initial_balance() {
+        let (strategy_config, risk_config) = make_test_config();
+        let strategy = CompoundStrategy::new(strategy_config, risk_config, dec!(100));
+        
+        let stats = strategy.get_stats();
+        assert_eq!(stats.growth_from_initial, dec!(1.0));
+    }
+
+    #[test]
+    fn test_large_initial_balance() {
+        let (strategy_config, risk_config) = make_test_config();
+        let strategy = CompoundStrategy::new(strategy_config, risk_config, dec!(1000000));
+        
+        let stats = strategy.get_stats();
+        assert_eq!(stats.growth_from_initial, dec!(1.0));
+    }
+
+    #[test]
+    fn test_alternating_wins_losses() {
+        let (strategy_config, risk_config) = make_test_config();
+        let mut strategy = CompoundStrategy::new(strategy_config, risk_config, dec!(1000));
+        
+        // Alternating pattern
+        strategy.record_result(dec!(50), dec!(0.10), dec!(0.70));
+        strategy.record_result(dec!(-30), dec!(0.10), dec!(0.60));
+        strategy.record_result(dec!(40), dec!(0.10), dec!(0.70));
+        strategy.record_result(dec!(-20), dec!(0.10), dec!(0.60));
+        
+        let stats = strategy.get_stats();
+        assert_eq!(stats.total_trades, 4);
+        assert_eq!(stats.wins, 2);
+        assert_eq!(stats.win_streak, 0);
+        assert_eq!(stats.lose_streak, 1);
+        assert_eq!(stats.total_pnl, dec!(40));
+    }
 }

@@ -150,4 +150,188 @@ mod tests {
         assert!(signal.suggested_size > Decimal::ZERO, "Size should be positive");
         assert!(signal.suggested_size <= dec!(0.05), "Size should not exceed max");
     }
+
+    #[test]
+    fn test_market_without_yes_outcome() {
+        let (strategy_config, risk_config) = make_test_config();
+        let signal_gen = SignalGenerator::new(strategy_config, risk_config);
+
+        let market = Market {
+            id: "test".to_string(),
+            question: "Test?".to_string(),
+            description: None,
+            end_date: None,
+            volume: dec!(0),
+            liquidity: dec!(0),
+            outcomes: vec![], // No outcomes
+            active: true,
+            closed: false,
+        };
+        let prediction = Prediction {
+            probability: dec!(0.70),
+            confidence: dec!(0.80),
+            reasoning: "Test".to_string(),
+        };
+
+        let signal = signal_gen.generate(&market, &prediction);
+        assert!(signal.is_none());
+    }
+
+    #[test]
+    fn test_edge_exactly_at_threshold() {
+        let (mut strategy_config, risk_config) = make_test_config();
+        strategy_config.min_edge = dec!(0.05);
+        let signal_gen = SignalGenerator::new(strategy_config, risk_config);
+
+        let market = make_test_market(dec!(0.50));
+        let prediction = Prediction {
+            probability: dec!(0.55), // Exactly 5% edge
+            confidence: dec!(0.80),
+            reasoning: "Test".to_string(),
+        };
+
+        let signal = signal_gen.generate(&market, &prediction);
+        assert!(signal.is_some());
+    }
+
+    #[test]
+    fn test_large_positive_edge() {
+        let (strategy_config, risk_config) = make_test_config();
+        let signal_gen = SignalGenerator::new(strategy_config, risk_config);
+
+        let market = make_test_market(dec!(0.20));
+        let prediction = Prediction {
+            probability: dec!(0.80), // 60% edge!
+            confidence: dec!(0.90),
+            reasoning: "Test".to_string(),
+        };
+
+        let signal = signal_gen.generate(&market, &prediction);
+        assert!(signal.is_some());
+        
+        let s = signal.unwrap();
+        assert_eq!(s.edge, dec!(0.60));
+        assert_eq!(s.side, Side::Buy);
+    }
+
+    #[test]
+    fn test_large_negative_edge() {
+        let (strategy_config, risk_config) = make_test_config();
+        let signal_gen = SignalGenerator::new(strategy_config, risk_config);
+
+        let market = make_test_market(dec!(0.80));
+        let prediction = Prediction {
+            probability: dec!(0.20), // -60% edge
+            confidence: dec!(0.90),
+            reasoning: "Test".to_string(),
+        };
+
+        let signal = signal_gen.generate(&market, &prediction);
+        assert!(signal.is_some());
+        
+        let s = signal.unwrap();
+        assert_eq!(s.edge, dec!(-0.60));
+        assert_eq!(s.side, Side::Sell);
+    }
+
+    #[test]
+    fn test_signal_market_id() {
+        let (strategy_config, risk_config) = make_test_config();
+        let signal_gen = SignalGenerator::new(strategy_config, risk_config);
+
+        let mut market = make_test_market(dec!(0.40));
+        market.id = "unique-market-123".to_string();
+        let prediction = Prediction {
+            probability: dec!(0.55),
+            confidence: dec!(0.75),
+            reasoning: "Test".to_string(),
+        };
+
+        let signal = signal_gen.generate(&market, &prediction).unwrap();
+        assert_eq!(signal.market_id, "unique-market-123");
+    }
+
+    #[test]
+    fn test_signal_token_id() {
+        let (strategy_config, risk_config) = make_test_config();
+        let signal_gen = SignalGenerator::new(strategy_config, risk_config);
+
+        let market = make_test_market(dec!(0.40));
+        let prediction = Prediction {
+            probability: dec!(0.55),
+            confidence: dec!(0.75),
+            reasoning: "Test".to_string(),
+        };
+
+        let signal = signal_gen.generate(&market, &prediction).unwrap();
+        assert_eq!(signal.token_id, "token-yes");
+    }
+
+    #[test]
+    fn test_prediction_fields_in_signal() {
+        let (strategy_config, risk_config) = make_test_config();
+        let signal_gen = SignalGenerator::new(strategy_config, risk_config);
+
+        let market = make_test_market(dec!(0.45));
+        let prediction = Prediction {
+            probability: dec!(0.60),
+            confidence: dec!(0.85),
+            reasoning: "Test".to_string(),
+        };
+
+        let signal = signal_gen.generate(&market, &prediction).unwrap();
+        assert_eq!(signal.model_probability, dec!(0.60));
+        assert_eq!(signal.market_probability, dec!(0.45));
+        assert_eq!(signal.confidence, dec!(0.85));
+    }
+
+    #[test]
+    fn test_zero_edge() {
+        let (strategy_config, risk_config) = make_test_config();
+        let signal_gen = SignalGenerator::new(strategy_config, risk_config);
+
+        let market = make_test_market(dec!(0.50));
+        let prediction = Prediction {
+            probability: dec!(0.50), // Zero edge
+            confidence: dec!(0.80),
+            reasoning: "Test".to_string(),
+        };
+
+        let signal = signal_gen.generate(&market, &prediction);
+        assert!(signal.is_none()); // No edge = no signal
+    }
+
+    #[test]
+    fn test_very_low_market_price() {
+        let (strategy_config, risk_config) = make_test_config();
+        let signal_gen = SignalGenerator::new(strategy_config, risk_config);
+
+        let market = make_test_market(dec!(0.05));
+        let prediction = Prediction {
+            probability: dec!(0.20),
+            confidence: dec!(0.80),
+            reasoning: "Test".to_string(),
+        };
+
+        let signal = signal_gen.generate(&market, &prediction);
+        assert!(signal.is_some());
+        assert_eq!(signal.unwrap().side, Side::Buy);
+    }
+
+    #[test]
+    fn test_very_high_market_price() {
+        let (strategy_config, risk_config) = make_test_config();
+        let signal_gen = SignalGenerator::new(strategy_config, risk_config);
+
+        let market = make_test_market(dec!(0.95));
+        let prediction = Prediction {
+            probability: dec!(0.80),
+            confidence: dec!(0.80),
+            reasoning: "Test".to_string(),
+        };
+
+        let signal = signal_gen.generate(&market, &prediction);
+        assert!(signal.is_some());
+        assert_eq!(signal.unwrap().side, Side::Sell);
+    }
 }
