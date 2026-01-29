@@ -32,6 +32,7 @@ pub mod orderbook;
 pub mod portfolio;
 pub mod regime;
 pub mod risk;
+pub mod routing;
 pub mod sentiment;
 pub mod signal_decay;
 pub mod storage;
