@@ -3,6 +3,7 @@
 pub mod compound;
 pub mod copy_trade;
 pub mod crypto_hf;
+pub mod signal_filter;
 pub mod trend_detector;
 
 #[cfg(test)]
