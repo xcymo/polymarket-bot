@@ -553,9 +553,11 @@ async fn run_bot(config: Config, dry_run: bool) -> anyhow::Result<()> {
             };
 
             if let Some(signal) = signal {
-                // Apply signal filter (deduplication + fusion)
-                if !signal_filter.deduplicator.can_trade(&market.id) {
-                    tracing::debug!("Skipping {} - already traded recently", market.id);
+                // Apply signal filter with dynamic cooldown
+                // Crypto markets: 2 min cooldown (fast trading)
+                // Other markets: 15 min cooldown
+                if !signal_filter.deduplicator.can_trade_dynamic(&market.id, is_crypto_market) {
+                    tracing::debug!("Skipping {} - cooldown active", market.id);
                     continue;
                 }
                 

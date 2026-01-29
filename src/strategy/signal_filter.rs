@@ -31,12 +31,28 @@ impl TradeDeduplicator {
     }
 
     /// Check if we can trade this market (not traded recently)
+    /// For crypto markets (detected by question content), use shorter cooldown
     pub fn can_trade(&self, market_id: &str) -> bool {
         let markets = self.traded_markets.read().unwrap();
         match markets.get(market_id) {
             Some(last_trade) => {
                 let elapsed = Utc::now() - *last_trade;
                 elapsed.num_minutes() >= self.cooldown_minutes
+            }
+            None => true,
+        }
+    }
+    
+    /// Check with dynamic cooldown based on market type
+    pub fn can_trade_dynamic(&self, market_id: &str, is_crypto: bool) -> bool {
+        let markets = self.traded_markets.read().unwrap();
+        match markets.get(market_id) {
+            Some(last_trade) => {
+                let elapsed = Utc::now() - *last_trade;
+                // Crypto: 2 min cooldown (allow fast trading)
+                // Politics: 15 min cooldown (slower markets)
+                let cooldown = if is_crypto { 2 } else { self.cooldown_minutes };
+                elapsed.num_minutes() >= cooldown
             }
             None => true,
         }
