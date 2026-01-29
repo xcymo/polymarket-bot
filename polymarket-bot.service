@@ -1,0 +1,17 @@
+[Unit]
+Description=Polymarket Trading Bot
+After=network.target
+
+[Service]
+Type=simple
+User=bot
+WorkingDirectory=/home/bot/clawd/projects/polymarket-bot
+Environment=RUST_LOG=info
+ExecStart=/home/bot/clawd/projects/polymarket-bot/target/release/polymarket-bot run --dry-run
+Restart=always
+RestartSec=10
+StandardOutput=append:/tmp/polymarket-bot.log
+StandardError=append:/tmp/polymarket-bot.log
+
+[Install]
+WantedBy=multi-user.target

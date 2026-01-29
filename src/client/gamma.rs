@@ -14,6 +14,9 @@ pub const CRYPTO_SERIES: &[(&str, &str, u64)] = &[
     ("BTC 15m", "btc-up-or-down-15m", 10192),
     ("BTC 4H", "bitcoin-up-or-down-4h", 10323),
     ("ETH 5m", "eth-up-or-down-5m", 10683),
+    ("SOL Hourly", "solana-up-or-down-hourly", 10122),
+    ("SOL Daily", "solana-up-or-down-daily", 10086),
+    ("XRP Hourly", "xrp-up-or-down-hourly", 10123),
 ];
 
 /// Gamma API client for market data

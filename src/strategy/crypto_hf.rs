@@ -50,7 +50,7 @@ pub struct CryptoHfStrategy {
 impl Default for CryptoHfStrategy {
     fn default() -> Self {
         Self {
-            min_momentum: dec!(0.001),           // 0.1% minimum move (more aggressive)
+            min_momentum: dec!(0.0003),           // 0.1% minimum move (more aggressive)
             entry_minutes_before_close: 3,       // Enter 3 mins before close
             certainty_threshold: dec!(0.85),     // 85% certainty
             max_position_usd: dec!(20),          // $20 max per trade
