@@ -19,6 +19,7 @@ pub mod data;
 pub mod error;
 pub mod executor;
 pub mod ingester;
+pub mod ml;
 pub mod model;
 pub mod monitor;
 pub mod notify;
