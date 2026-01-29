@@ -25,6 +25,7 @@ pub mod monitor;
 pub mod notify;
 pub mod onchain;
 pub mod orderbook;
+pub mod regime;
 pub mod risk;
 pub mod sentiment;
 pub mod storage;
