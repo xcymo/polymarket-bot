@@ -1,7 +1,13 @@
 //! Monitoring and alerting
 
+pub mod dashboard;
 pub mod market_state;
 
+pub use dashboard::{
+    DashboardState, DashboardMetrics, TradeEntry, PositionEntry, AlertEntry,
+    TradeSide, TradeStatus, AlertSeverity as DashboardAlertSeverity,
+    create_router, start_dashboard,
+};
 pub use market_state::{
     MarketStateMonitor, MarketStateConfig, MarketState, VolatilityRegime,
     TradingRecommendation, Alert, AlertType, AlertSeverity, Anomaly, AnomalyType
