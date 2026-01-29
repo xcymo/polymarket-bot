@@ -502,7 +502,7 @@ impl ConnectionPool {
 // ============================================================================
 
 /// Order to be batched
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct BatchableOrder {
     pub token_id: String,
     pub side: OrderSide,
@@ -762,12 +762,14 @@ impl LatencyOptimizer {
             None
         };
 
+        let template_cache = TemplateCache::new(config.presigned_templates_per_token);
+        
         Self {
             config,
             order_books: RwLock::new(HashMap::new()),
             connection_pool: pool,
             batch_submitter,
-            template_cache: TemplateCache::new(config.presigned_templates_per_token),
+            template_cache,
             stats,
         }
     }

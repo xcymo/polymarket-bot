@@ -1,31 +1,26 @@
+
 # Build
-/target/
 Cargo.lock
-
-# Config with secrets
 config.toml
-*.secret
-*.key
-
+# Config with secrets
+/data/
 # Database
 *.db
 *.db-journal
-/data/
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# OS
 .DS_Store
-Thumbs.db
-
-# Logs
-*.log
-logs/
-
-# Environment
 .env
 .env.*
+# Environment
+# IDE
+.idea/
+*.key
+*.log
+logs/
+# Logs
+# OS
+*.secret
+*.swo
+*.swp
+/target/
+Thumbs.db
+.vscode/
