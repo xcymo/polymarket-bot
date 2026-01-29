@@ -22,6 +22,7 @@ use polymarket_bot::{
         SignalGenerator,
         copy_trade::{CopyTrader, TopTrader},
         crypto_hf::{CryptoHfStrategy, CryptoPriceTracker},
+        realtime::{RealtimeEngine, start_binance_feed},
     },
     telegram::{TelegramBot, CommandHandler, BotCommand},
 };
@@ -171,12 +172,24 @@ async fn run_bot(config: Config, dry_run: bool) -> anyhow::Result<()> {
     if let Err(e) = crypto_tracker.init_history().await {
         tracing::warn!("Failed to initialize crypto price history: {}", e);
     }
+
+    // Initialize real-time engine with WebSocket feed
+    let (rt_signal_tx, mut rt_signal_rx) = tokio::sync::mpsc::channel(100);
+    let realtime_engine = Arc::new(RealtimeEngine::new(rt_signal_tx));
+    
+    // Start Binance WebSocket feed in background
+    let rt_engine_clone = realtime_engine.clone();
+    tokio::spawn(async move {
+        if let Err(e) = start_binance_feed(rt_engine_clone).await {
+            tracing::error!("Binance WebSocket feed error: {}", e);
+        }
+    });
     
     let executor = Arc::new(Executor::new(client.clob.clone(), config.risk.clone()));
     let tg_config = config.telegram.clone();
     let notifier = Arc::new(notifier);
 
-    tracing::info!("Bot initialized. Starting main loop...");
+    tracing::info!("Bot initialized with real-time WebSocket feed...");
 
     // ========== Signal Ingester Pipeline ==========
     // Spawn the external signal ingestion system if configured
@@ -519,10 +532,11 @@ async fn run_bot(config: Config, dry_run: bool) -> anyhow::Result<()> {
                 continue;
             }
 
-            // Generate signal: use crypto strategy for crypto markets, LLM for others
+            // Generate signal: use real-time engine for crypto markets, LLM for others
             let signal = if is_crypto_market {
-                // Use Binance price momentum for crypto markets
-                crypto_strategy.generate_signal(market, &crypto_tracker)
+                // Use real-time WebSocket data for crypto markets
+                realtime_engine.generate_signal(market).await
+                    .or_else(|| crypto_strategy.generate_signal(market, &crypto_tracker))
             } else {
                 // Use LLM prediction for regular markets
                 let prediction = match model.predict(market).await {
