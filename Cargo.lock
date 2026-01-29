@@ -3074,6 +3074,7 @@ dependencies = [
  "tokio",
  "tokio-test",
  "tokio-tungstenite 0.26.2",
+ "toml 0.8.23",
  "tracing",
  "tracing-subscriber",
  "uuid 1.20.0",

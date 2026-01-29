@@ -23,3 +23,8 @@ pub mod storage;
 pub mod strategy;
 pub mod telegram;
 pub mod types;
+
+#[cfg(test)]
+mod types_tests;
+#[cfg(test)]
+mod config_tests;

@@ -8,6 +8,8 @@ pub mod crypto_hf;
 mod tests;
 #[cfg(test)]
 mod compound_tests;
+#[cfg(test)]
+mod copy_trade_tests;
 
 pub use compound::CompoundStrategy;
 pub use copy_trade::{CopyTrader, CopySignal, TopTrader, CopyTradeConfig};

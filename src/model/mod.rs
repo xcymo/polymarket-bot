@@ -5,8 +5,10 @@
 
 mod llm;
 mod sentiment;
+#[cfg(test)]
+mod tests;
 
-pub use llm::LlmModel;
+pub use llm::{LlmModel, LlmProvider};
 pub use sentiment::SentimentModel;
 
 use crate::error::Result;
