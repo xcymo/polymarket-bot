@@ -5,6 +5,7 @@
 
 mod arbitrage_loop;
 mod continuous;
+mod cross_price_arb;
 mod crypto_market;
 mod crypto15m_monitor;
 mod indicators;
@@ -27,6 +28,11 @@ pub use indicators::{
 };
 pub use negative_risk::NegativeRiskScanner;
 pub use realtime::RealtimeArbitrageScanner;
+pub use cross_price_arb::{
+    CrossPriceScanner, CrossPriceConfig, CrossPriceOpp,
+    CrossPricePaperTrader, CompletedTrade as CrossPriceCompletedTrade,
+    ScannerStats as CrossPriceScannerStats, PaperPosition as CrossPricePaperPosition,
+};
 
 use rust_decimal::Decimal;
 use std::time::Duration;
