@@ -7,11 +7,13 @@ mod position;
 mod trader;
 mod evaluator;
 mod llm_trader;
+mod auto_trader;
 
 pub use position::{Position, PositionSide, PositionStatus};
 pub use trader::{PaperTrader, PaperTraderConfig, TradeRecord, TradeAction};
 pub use evaluator::{MarketEvaluator, EvaluationResult, ConfidenceLevel};
 pub use llm_trader::{LlmTrader, TradeDecision, PositionContext, MarketContext};
+pub use auto_trader::{AutoTrader, AutoTraderConfig, AutoCloseResult, AutoCloseReason, PriceSnapshot, AuditEntry};
 
 use rust_decimal::Decimal;
 use chrono::{DateTime, Utc};

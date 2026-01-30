@@ -61,6 +61,7 @@ parking_lot = "0.12.5"
 tokio-test = "0.4"
 mockall = "0.13"
 toml = "0.8"
+tempfile = "3"
 
 [[bin]]
 name = "polymarket-bot"
