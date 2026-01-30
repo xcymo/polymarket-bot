@@ -36,7 +36,7 @@ pub struct GammaClient {
     base_url: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 struct GammaMarket {
     id: String,
     question: String,
@@ -197,10 +197,25 @@ impl GammaClient {
     }
 
     /// Get active crypto markets (BTC/ETH Up/Down)
-    /// Combines static series + dynamic search for hourly markets
+    /// Combines dynamic 15m discovery + static series + search for hourly markets
     pub async fn get_crypto_markets(&self) -> Result<Vec<Market>> {
         let mut markets = Vec::new();
         let mut seen_ids = std::collections::HashSet::new();
+
+        // 0. First try dynamic 15m discovery (most reliable for short-term markets)
+        match self.get_crypto_15m_markets_dynamic().await {
+            Ok(dynamic_markets) => {
+                debug!("Dynamic discovery found {} 15m markets", dynamic_markets.len());
+                for market in dynamic_markets {
+                    if seen_ids.insert(market.id.clone()) {
+                        markets.push(market);
+                    }
+                }
+            }
+            Err(e) => {
+                debug!("Dynamic 15m discovery failed: {}", e);
+            }
+        }
 
         // 1. Fetch from known series (static)
         for (name, _slug, series_id) in CRYPTO_SERIES {
@@ -366,6 +381,60 @@ impl GammaClient {
                     .unwrap_or(false)
             })
             .collect())
+    }
+
+    /// Get current crypto 15-minute markets using dynamic timestamp-based slugs
+    /// 
+    /// This is the KEY fix: Polymarket creates these markets with predictable slugs:
+    /// `{symbol}-updown-15m-{timestamp}` where timestamp is 15-min aligned
+    pub async fn get_crypto_15m_markets_dynamic(&self) -> Result<Vec<Market>> {
+        use chrono::Utc;
+        
+        let now = Utc::now().timestamp();
+        let aligned = (now / 900) * 900; // 15-min aligned
+        
+        let symbols = ["btc", "eth", "xrp", "sol", "doge"];
+        let mut markets = Vec::new();
+        
+        for symbol in symbols {
+            let slug = format!("{}-updown-15m-{}", symbol, aligned);
+            debug!("Fetching crypto market with dynamic slug: {}", slug);
+            
+            let url = format!("{}/events?slug={}", self.base_url, slug);
+            let resp = match self.http.get(&url).send().await {
+                Ok(r) => r,
+                Err(e) => {
+                    debug!("Failed to fetch {}: {}", slug, e);
+                    continue;
+                }
+            };
+            
+            if !resp.status().is_success() {
+                continue;
+            }
+            
+            let events: Vec<EventResponse> = match resp.json().await {
+                Ok(e) => e,
+                Err(_) => continue,
+            };
+            
+            if events.is_empty() {
+                continue;
+            }
+            
+            let event = &events[0];
+            if let Some(ref event_markets) = event.markets {
+                for gm in event_markets {
+                    if let Some(market) = self.parse_market(gm.clone()) {
+                        debug!("Found {} 15m market: {}", symbol.to_uppercase(), market.question);
+                        markets.push(market);
+                    }
+                }
+            }
+        }
+        
+        debug!("Found {} crypto 15m markets via dynamic discovery", markets.len());
+        Ok(markets)
     }
 }
 
