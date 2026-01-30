@@ -69,3 +69,7 @@ path = "src/main.rs"
 [[bin]]
 name = "dry_run_1000"
 path = "src/bin/dry_run_1000.rs"
+
+[[bin]]
+name = "paper_auto"
+path = "src/bin/paper_auto.rs"
