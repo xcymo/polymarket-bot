@@ -71,20 +71,107 @@ SOFTWARE.
    should independently verify all outputs before making any decisions.
 
 ================================================================================
-                        多语言免责声明 / 多言語免責事項
+                     MULTILINGUAL DISCLAIMER / 多语言免责声明
 ================================================================================
 
-【中文】
+【English】
+This software is provided for research and educational purposes only. The 
+authors are not liable for any financial losses, legal issues, or other 
+consequences arising from its use. Users assume all risks and must comply 
+with local laws and regulations.
+
+【中文 - Chinese】
 本软件仅供研究和教育目的使用。作者不对因使用本软件而导致的任何财务损失、
 法律问题或其他后果承担责任。用户须自行承担使用风险并遵守当地法律法规。
 
-【日本語】
+【日本語 - Japanese】
 本ソフトウェアは研究および教育目的のみに提供されています。著者は、本ソフト
 ウェアの使用により生じた財務上の損失、法的問題、その他の結果について一切
-責任を負いません。ユーザーは自己責任で使用し、現地の法規制を遵守する必要
-があります。
+責任を負いません。ユーザーは自己責任で使用し、現地の法規制を遵守してください。
 
-【한국어】
+【한국어 - Korean】
 이 소프트웨어는 연구 및 교육 목적으로만 제공됩니다. 저자는 이 소프트웨어
 사용으로 인한 재정적 손실, 법적 문제 또는 기타 결과에 대해 책임을 지지 
 않습니다. 사용자는 자신의 책임하에 사용하고 현지 법규를 준수해야 합니다.
+
+【Español - Spanish】
+Este software se proporciona únicamente con fines de investigación y 
+educación. Los autores no son responsables de pérdidas financieras, problemas 
+legales u otras consecuencias derivadas de su uso. Los usuarios asumen todos 
+los riesgos y deben cumplir con las leyes y regulaciones locales.
+
+【Français - French】
+Ce logiciel est fourni uniquement à des fins de recherche et d'éducation. 
+Les auteurs ne sont pas responsables des pertes financières, des problèmes 
+juridiques ou d'autres conséquences découlant de son utilisation. Les 
+utilisateurs assument tous les risques et doivent se conformer aux lois locales.
+
+【Deutsch - German】
+Diese Software wird ausschließlich zu Forschungs- und Bildungszwecken 
+bereitgestellt. Die Autoren haften nicht für finanzielle Verluste, rechtliche 
+Probleme oder andere Folgen, die sich aus der Nutzung ergeben. Benutzer 
+tragen alle Risiken und müssen die lokalen Gesetze einhalten.
+
+【Português - Portuguese】
+Este software é fornecido apenas para fins de pesquisa e educação. Os autores 
+não são responsáveis por perdas financeiras, questões legais ou outras 
+consequências decorrentes de seu uso. Os usuários assumem todos os riscos e 
+devem cumprir as leis e regulamentos locais.
+
+【Русский - Russian】
+Это программное обеспечение предоставляется исключительно в исследовательских 
+и образовательных целях. Авторы не несут ответственности за финансовые убытки, 
+юридические проблемы или иные последствия, связанные с его использованием. 
+Пользователи принимают на себя все риски и обязаны соблюдать местные законы.
+
+【العربية - Arabic】
+هذا البرنامج مقدم لأغراض البحث والتعليم فقط. لا يتحمل المؤلفون أي مسؤولية عن 
+الخسائر المالية أو المشاكل القانونية أو أي عواقب أخرى ناجمة عن استخدامه. يتحمل 
+المستخدمون جميع المخاطر ويجب عليهم الامتثال للقوانين واللوائح المحلية.
+
+【हिन्दी - Hindi】
+यह सॉफ्टवेयर केवल अनुसंधान और शैक्षिक उद्देश्यों के लिए प्रदान किया गया है। 
+लेखक इसके उपयोग से होने वाली किसी भी वित्तीय हानि, कानूनी समस्याओं या अन्य 
+परिणामों के लिए जिम्मेदार नहीं हैं। उपयोगकर्ता सभी जोखिम स्वीकार करते हैं 
+और स्थानीय कानूनों का पालन करना चाहिए।
+
+【Italiano - Italian】
+Questo software è fornito esclusivamente a scopo di ricerca e didattico. Gli 
+autori non sono responsabili per perdite finanziarie, problemi legali o altre 
+conseguenze derivanti dal suo utilizzo. Gli utenti si assumono tutti i rischi 
+e devono rispettare le leggi e i regolamenti locali.
+
+【Nederlands - Dutch】
+Deze software wordt uitsluitend voor onderzoeks- en educatieve doeleinden 
+verstrekt. De auteurs zijn niet aansprakelijk voor financiële verliezen, 
+juridische problemen of andere gevolgen die voortvloeien uit het gebruik. 
+Gebruikers dragen alle risico's en moeten de lokale wet- en regelgeving naleven.
+
+【Türkçe - Turkish】
+Bu yazılım yalnızca araştırma ve eğitim amaçlı sağlanmaktadır. Yazarlar, 
+kullanımından kaynaklanan mali kayıplar, yasal sorunlar veya diğer sonuçlardan 
+sorumlu değildir. Kullanıcılar tüm riskleri üstlenir ve yerel yasa ve 
+yönetmeliklere uymak zorundadır.
+
+【ภาษาไทย - Thai】
+ซอฟต์แวร์นี้จัดทำขึ้นเพื่อการวิจัยและการศึกษาเท่านั้น ผู้เขียนไม่รับผิดชอบต่อ
+ความสูญเสียทางการเงิน ปัญหาทางกฎหมาย หรือผลที่ตามมาอื่นๆ จากการใช้งาน 
+ผู้ใช้ยอมรับความเสี่ยงทั้งหมดและต้องปฏิบัติตามกฎหมายท้องถิ่น
+
+【Tiếng Việt - Vietnamese】
+Phần mềm này chỉ được cung cấp cho mục đích nghiên cứu và giáo dục. Các tác 
+giả không chịu trách nhiệm về bất kỳ tổn thất tài chính, vấn đề pháp lý hoặc 
+hậu quả nào khác phát sinh từ việc sử dụng. Người dùng chịu mọi rủi ro và 
+phải tuân thủ luật pháp địa phương.
+
+【Bahasa Indonesia - Indonesian】
+Perangkat lunak ini disediakan hanya untuk tujuan penelitian dan pendidikan. 
+Penulis tidak bertanggung jawab atas kerugian finansial, masalah hukum, atau 
+konsekuensi lain yang timbul dari penggunaannya. Pengguna menanggung semua 
+risiko dan harus mematuhi hukum dan peraturan setempat.
+
+【Polski - Polish】
+To oprogramowanie jest udostępniane wyłącznie do celów badawczych i 
+edukacyjnych. Autorzy nie ponoszą odpowiedzialności za straty finansowe, 
+problemy prawne ani inne konsekwencje wynikające z jego użytkowania. 
+Użytkownicy ponoszą całe ryzyko i muszą przestrzegać lokalnych przepisów.

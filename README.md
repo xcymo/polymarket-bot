@@ -2,11 +2,23 @@
 
 > ⚠️ **DISCLAIMER: FOR RESEARCH PURPOSES ONLY**
 > 
-> 🇺🇸 **EN**: This project is strictly for educational and research purposes. Users are solely responsible for compliance with all applicable laws and regulations in their jurisdiction. The authors assume no liability for any legal, financial, or other consequences arising from the use of this software.
+> 🇺🇸 **EN**: This project is strictly for educational and research purposes. Users are solely responsible for compliance with all applicable laws and regulations in their jurisdiction.
 > 
-> 🇨🇳 **中文**: 本项目仅供教育和研究目的。用户须自行负责遵守其所在司法管辖区的所有适用法律法规。作者不对因使用本软件而产生的任何法律、财务或其他后果承担责任。
+> 🇨🇳 **中文**: 本项目仅供教育和研究目的。用户须自行负责遵守所在地区的法律法规。
 > 
-> 🇯🇵 **日本語**: このプロジェクトは教育および研究目的のみです。ユーザーは、各自の管轄区域で適用されるすべての法律および規制を遵守する責任を負います。著者は、本ソフトウェアの使用により生じるいかなる法的、財務的、またはその他の結果についても責任を負いません。
+> 🇯🇵 **日本語**: 本プロジェクトは教育・研究目的のみ。ユーザーは現地の法規制を遵守する責任を負います。
+> 
+> 🇪🇸 **ES**: Solo para fines educativos e investigación. Los usuarios deben cumplir con las leyes locales.
+> 
+> 🇫🇷 **FR**: Uniquement à des fins éducatives et de recherche. Respectez les lois locales.
+> 
+> 🇩🇪 **DE**: Nur für Bildungs- und Forschungszwecke. Lokale Gesetze beachten.
+> 
+> 🇷🇺 **RU**: Только для исследовательских и образовательных целей.
+> 
+> 🇸🇦 **AR**: للأغراض البحثية والتعليمية فقط.
+> 
+> 📜 **[Full Disclaimer in 16 Languages → LICENSE](LICENSE)**
 > 
 > ---
 > 
