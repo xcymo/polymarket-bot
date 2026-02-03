@@ -1,6 +1,7 @@
 //! CLOB (Central Limit Order Book) API client
 //!
 //! Handles order placement, cancellation, and account queries.
+//! Implements Polymarket's Level 1 (EIP-712) and Level 2 (HMAC) authentication.
 
 use crate::client::auth::{ApiCredentials, PolySigner};
 use crate::error::{BotError, Result};
@@ -10,6 +11,34 @@ use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::RwLock;
+use hmac::{Hmac, Mac};
+use sha2::Sha256;
+use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64};
+
+/// Build HMAC signature for Level 2 authentication
+fn build_hmac_signature(
+    secret: &str,
+    timestamp: i64,
+    method: &str,
+    path: &str,
+    body: Option<&str>,
+) -> Result<String> {
+    // Decode the base64 secret
+    let secret_bytes = BASE64.decode(secret)
+        .map_err(|e| BotError::Auth(format!("Invalid API secret: {}", e)))?;
+    
+    // Build the message: timestamp + method + path + body
+    let body_str = body.unwrap_or("");
+    let message = format!("{}{}{}{}", timestamp, method, path, body_str);
+    
+    // Create HMAC-SHA256
+    let mut mac = Hmac::<Sha256>::new_from_slice(&secret_bytes)
+        .map_err(|e| BotError::Auth(format!("HMAC creation failed: {}", e)))?;
+    mac.update(message.as_bytes());
+    
+    // Return base64 encoded signature
+    Ok(BASE64.encode(mac.finalize().into_bytes()))
+}
 
 /// CLOB API client for trading operations
 #[derive(Clone)]
@@ -61,35 +90,119 @@ impl ClobClient {
         })
     }
 
-    /// Initialize API credentials (call this before trading)
+    /// Initialize API credentials by creating or deriving them from the server
+    /// This uses Level 1 (EIP-712) authentication
     pub async fn initialize(&self) -> Result<()> {
-        // Get nonce from server
-        let nonce = self.get_nonce().await?;
-        
-        // Create and store credentials
-        let creds = self.signer.create_api_credentials(nonce).await?;
-        *self.credentials.write().await = Some(creds);
-        
-        Ok(())
+        // Try to create new API key first, fall back to deriving existing one
+        match self.create_api_key().await {
+            Ok(creds) => {
+                *self.credentials.write().await = Some(creds);
+                Ok(())
+            }
+            Err(_) => {
+                // If creation fails, try to derive existing key
+                let creds = self.derive_api_key().await?;
+                *self.credentials.write().await = Some(creds);
+                Ok(())
+            }
+        }
     }
 
-    /// Get server nonce for authentication
-    async fn get_nonce(&self) -> Result<u64> {
-        let url = format!("{}/auth/nonce", self.base_url);
-        let addr = self.signer.address_hex();
+    /// Create Level 1 authentication headers (EIP-712 signed)
+    async fn create_l1_headers(&self, nonce: u64) -> Result<Vec<(String, String)>> {
+        let timestamp = chrono::Utc::now().timestamp();
+        let signature = self.signer.sign_clob_auth(timestamp, nonce).await?;
+        
+        Ok(vec![
+            ("POLY_ADDRESS".to_string(), self.signer.address_hex()),
+            ("POLY_SIGNATURE".to_string(), signature),
+            ("POLY_TIMESTAMP".to_string(), timestamp.to_string()),
+            ("POLY_NONCE".to_string(), nonce.to_string()),
+        ])
+    }
 
-        let resp: serde_json::Value = self
-            .http
-            .get(&url)
-            .query(&[("address", &addr)])
-            .send()
-            .await?
-            .json()
-            .await?;
+    /// Create a new API key using Level 1 auth
+    async fn create_api_key(&self) -> Result<ApiCredentials> {
+        let url = format!("{}/auth/api-key", self.base_url);
+        let headers = self.create_l1_headers(0).await?;
+        
+        let mut req = self.http.post(&url);
+        for (key, value) in headers {
+            req = req.header(&key, &value);
+        }
+        
+        let resp: serde_json::Value = req.send().await?.json().await?;
+        
+        Ok(ApiCredentials {
+            api_key: resp["apiKey"]
+                .as_str()
+                .ok_or_else(|| BotError::Api("Missing apiKey".into()))?
+                .to_string(),
+            api_secret: resp["secret"]
+                .as_str()
+                .ok_or_else(|| BotError::Api("Missing secret".into()))?
+                .to_string(),
+            api_passphrase: resp["passphrase"]
+                .as_str()
+                .ok_or_else(|| BotError::Api("Missing passphrase".into()))?
+                .to_string(),
+            timestamp: chrono::Utc::now().timestamp() as u64,
+        })
+    }
 
-        resp["nonce"]
-            .as_u64()
-            .ok_or_else(|| BotError::Api("Invalid nonce response".into()))
+    /// Derive existing API key using Level 1 auth
+    async fn derive_api_key(&self) -> Result<ApiCredentials> {
+        let url = format!("{}/auth/derive-api-key", self.base_url);
+        let headers = self.create_l1_headers(0).await?;
+        
+        let mut req = self.http.get(&url);
+        for (key, value) in headers {
+            req = req.header(&key, &value);
+        }
+        
+        let resp: serde_json::Value = req.send().await?.json().await?;
+        
+        Ok(ApiCredentials {
+            api_key: resp["apiKey"]
+                .as_str()
+                .ok_or_else(|| BotError::Api("Missing apiKey".into()))?
+                .to_string(),
+            api_secret: resp["secret"]
+                .as_str()
+                .ok_or_else(|| BotError::Api("Missing secret".into()))?
+                .to_string(),
+            api_passphrase: resp["passphrase"]
+                .as_str()
+                .ok_or_else(|| BotError::Api("Missing passphrase".into()))?
+                .to_string(),
+            timestamp: chrono::Utc::now().timestamp() as u64,
+        })
+    }
+
+    /// Create Level 2 authentication headers (HMAC signed)
+    fn create_l2_headers(
+        &self, 
+        creds: &ApiCredentials, 
+        method: &str, 
+        path: &str, 
+        body: Option<&str>
+    ) -> Result<Vec<(String, String)>> {
+        let timestamp = chrono::Utc::now().timestamp();
+        let hmac_sig = build_hmac_signature(
+            &creds.api_secret,
+            timestamp,
+            method,
+            path,
+            body,
+        )?;
+        
+        Ok(vec![
+            ("POLY_ADDRESS".to_string(), self.signer.address_hex()),
+            ("POLY_SIGNATURE".to_string(), hmac_sig),
+            ("POLY_TIMESTAMP".to_string(), timestamp.to_string()),
+            ("POLY_API_KEY".to_string(), creds.api_key.clone()),
+            ("POLY_PASSPHRASE".to_string(), creds.api_passphrase.clone()),
+        ])
     }
 
     /// Check if the CLOB API is healthy
@@ -106,17 +219,16 @@ impl ClobClient {
             .as_ref()
             .ok_or_else(|| BotError::Auth("Not authenticated".into()))?;
 
-        let url = format!("{}/balance", self.base_url);
-        let resp: BalanceResponse = self
-            .http
-            .get(&url)
-            .header("POLY_ADDRESS", &creds.api_passphrase)
-            .header("POLY_SIGNATURE", &creds.api_secret)
-            .header("POLY_TIMESTAMP", creds.timestamp.to_string())
-            .send()
-            .await?
-            .json()
-            .await?;
+        let path = "/balance";
+        let url = format!("{}{}", self.base_url, path);
+        let headers = self.create_l2_headers(creds, "GET", path, None)?;
+        
+        let mut req = self.http.get(&url);
+        for (key, value) in headers {
+            req = req.header(&key, &value);
+        }
+        
+        let resp: BalanceResponse = req.send().await?.json().await?;
 
         resp.balance
             .parse()
@@ -146,14 +258,20 @@ impl ClobClient {
             expiration: None,
         };
 
-        let url = format!("{}/order", self.base_url);
-        let resp: OrderResponse = self
-            .http
-            .post(&url)
-            .header("POLY_ADDRESS", &creds.api_passphrase)
-            .header("POLY_SIGNATURE", &creds.api_secret)
-            .header("POLY_TIMESTAMP", creds.timestamp.to_string())
-            .json(&req)
+        let path = "/order";
+        let url = format!("{}{}", self.base_url, path);
+        let body = serde_json::to_string(&req)
+            .map_err(|e| BotError::Api(format!("JSON serialization failed: {}", e)))?;
+        let headers = self.create_l2_headers(creds, "POST", path, Some(&body))?;
+        
+        let mut http_req = self.http.post(&url);
+        for (key, value) in headers {
+            http_req = http_req.header(&key, &value);
+        }
+        
+        let resp: OrderResponse = http_req
+            .header("Content-Type", "application/json")
+            .body(body)
             .send()
             .await?
             .json()
@@ -175,15 +293,16 @@ impl ClobClient {
             .as_ref()
             .ok_or_else(|| BotError::Auth("Not authenticated".into()))?;
 
-        let url = format!("{}/order/{}", self.base_url, order_id);
-        self.http
-            .delete(&url)
-            .header("POLY_ADDRESS", &creds.api_passphrase)
-            .header("POLY_SIGNATURE", &creds.api_secret)
-            .header("POLY_TIMESTAMP", creds.timestamp.to_string())
-            .send()
-            .await?;
-
+        let path = format!("/order/{}", order_id);
+        let url = format!("{}{}", self.base_url, path);
+        let headers = self.create_l2_headers(creds, "DELETE", &path, None)?;
+        
+        let mut req = self.http.delete(&url);
+        for (key, value) in headers {
+            req = req.header(&key, &value);
+        }
+        
+        req.send().await?;
         Ok(())
     }
 
@@ -194,17 +313,16 @@ impl ClobClient {
             .as_ref()
             .ok_or_else(|| BotError::Auth("Not authenticated".into()))?;
 
-        let url = format!("{}/order/{}", self.base_url, order_id);
-        let resp: serde_json::Value = self
-            .http
-            .get(&url)
-            .header("POLY_ADDRESS", &creds.api_passphrase)
-            .header("POLY_SIGNATURE", &creds.api_secret)
-            .header("POLY_TIMESTAMP", creds.timestamp.to_string())
-            .send()
-            .await?
-            .json()
-            .await?;
+        let path = format!("/order/{}", order_id);
+        let url = format!("{}{}", self.base_url, path);
+        let headers = self.create_l2_headers(creds, "GET", &path, None)?;
+        
+        let mut req = self.http.get(&url);
+        for (key, value) in headers {
+            req = req.header(&key, &value);
+        }
+        
+        let resp: serde_json::Value = req.send().await?.json().await?;
 
         Ok(OrderStatus {
             order_id: resp["orderID"].as_str().unwrap_or_default().to_string(),
@@ -228,13 +346,16 @@ impl ClobClient {
             .as_ref()
             .ok_or_else(|| BotError::Auth("Not authenticated".into()))?;
 
-        let url = format!("{}/orders", self.base_url);
-        let resp: Vec<serde_json::Value> = self
-            .http
-            .get(&url)
-            .header("POLY_ADDRESS", &creds.api_passphrase)
-            .header("POLY_SIGNATURE", &creds.api_secret)
-            .header("POLY_TIMESTAMP", creds.timestamp.to_string())
+        let path = "/orders";
+        let url = format!("{}{}", self.base_url, path);
+        let headers = self.create_l2_headers(creds, "GET", path, None)?;
+        
+        let mut req = self.http.get(&url);
+        for (key, value) in headers {
+            req = req.header(&key, &value);
+        }
+        
+        let resp: Vec<serde_json::Value> = req
             .query(&[("status", "open")])
             .send()
             .await?
@@ -317,17 +438,16 @@ impl ClobClient {
             .as_ref()
             .ok_or_else(|| BotError::Auth("Not authenticated".into()))?;
 
-        let url = format!("{}/positions", self.base_url);
-        let resp: Vec<serde_json::Value> = self
-            .http
-            .get(&url)
-            .header("POLY_ADDRESS", &creds.api_passphrase)
-            .header("POLY_SIGNATURE", &creds.api_secret)
-            .header("POLY_TIMESTAMP", creds.timestamp.to_string())
-            .send()
-            .await?
-            .json()
-            .await?;
+        let path = "/positions";
+        let url = format!("{}{}", self.base_url, path);
+        let headers = self.create_l2_headers(creds, "GET", path, None)?;
+        
+        let mut req = self.http.get(&url);
+        for (key, value) in headers {
+            req = req.header(&key, &value);
+        }
+        
+        let resp: Vec<serde_json::Value> = req.send().await?.json().await?;
 
         Ok(resp
             .into_iter()

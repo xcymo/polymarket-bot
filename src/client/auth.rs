@@ -1,11 +1,17 @@
 //! Authentication and signing for Polymarket API
 //!
 //! Implements EIP-712 typed data signing for order authentication.
+//! Supports both Level 1 (EIP-712) and Level 2 (HMAC) authentication.
 
 use crate::error::{BotError, Result};
 use ethers::signers::{LocalWallet, Signer};
 use ethers::types::{Address, H256, U256};
 use ethers::utils::keccak256;
+
+// EIP-712 domain constants for CLOB auth
+const CLOB_DOMAIN_NAME: &str = "ClobAuthDomain";
+const CLOB_VERSION: &str = "1";
+const CLOB_AUTH_MESSAGE: &str = "This message attests that I control the given wallet";
 
 /// Signer for Polymarket API authentication
 #[derive(Clone)]
@@ -36,6 +42,11 @@ impl PolySigner {
     pub fn address_hex(&self) -> String {
         format!("{:?}", self.wallet.address())
     }
+    
+    /// Get chain ID
+    pub fn chain_id(&self) -> u64 {
+        self.chain_id
+    }
 
     /// Sign a message hash
     pub async fn sign_hash(&self, hash: H256) -> Result<String> {
@@ -57,26 +68,50 @@ impl PolySigner {
 
         Ok(format!("0x{}", hex::encode(signature.to_vec())))
     }
-
-    /// Create API credentials for Polymarket CLOB
-    pub async fn create_api_credentials(&self, nonce: u64) -> Result<ApiCredentials> {
-        let timestamp = chrono::Utc::now().timestamp() as u64;
-        let message = format!(
-            "Sign in to Polymarket\n\nNonce: {}\nTimestamp: {}",
-            nonce, timestamp
+    
+    /// Sign EIP-712 ClobAuth message for Level 1 authentication
+    /// This is used to create/derive API keys
+    pub async fn sign_clob_auth(&self, timestamp: i64, nonce: u64) -> Result<String> {
+        // Build EIP-712 domain separator
+        let domain_type_hash = keccak256(
+            b"EIP712Domain(string name,string version,uint256 chainId)"
         );
-
-        let signature = self.sign_message(message.as_bytes()).await?;
-
-        Ok(ApiCredentials {
-            api_key: self.derive_api_key(&signature),
-            api_secret: signature,
-            api_passphrase: self.address_hex(),
-            timestamp,
-        })
+        let name_hash = keccak256(CLOB_DOMAIN_NAME.as_bytes());
+        let version_hash = keccak256(CLOB_VERSION.as_bytes());
+        
+        let mut domain_data = Vec::new();
+        domain_data.extend_from_slice(&domain_type_hash);
+        domain_data.extend_from_slice(&name_hash);
+        domain_data.extend_from_slice(&version_hash);
+        domain_data.extend_from_slice(&u256_to_bytes32(U256::from(self.chain_id)));
+        let domain_separator = keccak256(&domain_data);
+        
+        // Build ClobAuth struct hash
+        // ClobAuth(address address,string timestamp,uint256 nonce,string message)
+        let struct_type_hash = keccak256(
+            b"ClobAuth(address address,string timestamp,uint256 nonce,string message)"
+        );
+        let timestamp_hash = keccak256(timestamp.to_string().as_bytes());
+        let message_hash = keccak256(CLOB_AUTH_MESSAGE.as_bytes());
+        
+        let mut struct_data = Vec::new();
+        struct_data.extend_from_slice(&struct_type_hash);
+        struct_data.extend_from_slice(&address_to_bytes32(self.wallet.address()));
+        struct_data.extend_from_slice(&timestamp_hash);
+        struct_data.extend_from_slice(&u256_to_bytes32(U256::from(nonce)));
+        struct_data.extend_from_slice(&message_hash);
+        let struct_hash = keccak256(&struct_data);
+        
+        // Compute final digest: keccak256("\x19\x01" + domain_separator + struct_hash)
+        let mut digest_data = vec![0x19, 0x01];
+        digest_data.extend_from_slice(&domain_separator);
+        digest_data.extend_from_slice(&struct_hash);
+        let digest = H256::from(keccak256(&digest_data));
+        
+        self.sign_hash(digest).await
     }
 
-    /// Derive API key from signature
+    /// Derive API key from signature (used internally by server, but we can compute locally)
     fn derive_api_key(&self, signature: &str) -> String {
         let hash = keccak256(signature.as_bytes());
         hex::encode(&hash[..16])
