@@ -17,6 +17,16 @@
 > 🇩🇪 **Dieses Repository wird nicht mehr gepflegt.** Nutzen Sie KI-Tools für eigene Recherchen.
 >
 > 🇷🇺 **Этот репозиторий больше не поддерживается.** Используйте ИИ для самостоятельного изучения.
+>
+> ---
+>
+> ### 💬 Research Community / 研究者交流群
+>
+> [![Discord](https://img.shields.io/badge/Discord-Research%20Only-5865F2?logo=discord&logoColor=white)](https://discord.gg/ZT7wsEHG)
+>
+> 🇺🇸 **For researchers only.** Join to discuss prediction market mechanics, API research, and algorithmic concepts. **Non-research purposes strictly prohibited.** Members joining for trading signals, financial advice, or commercial purposes will be removed.
+>
+> 🇨🇳 **仅限研究者加入。** 讨论预测市场机制、API研究和算法概念。**严禁非研究目的加入。** 以获取交易信号、投资建议或商业目的加入者将被移除。
 
 ---
 
