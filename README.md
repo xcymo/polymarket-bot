@@ -1,24 +1,108 @@
 # 🎲 Polymarket Trading Bot
 
-> ⚠️ **DISCLAIMER: FOR RESEARCH PURPOSES ONLY**
+> ## ⚠️ CRITICAL DISCLAIMER / 重要免责声明 ⚠️
+>
+> ### 🚫 DO NOT USE FOR REAL TRADING / 禁止用于真实交易 🚫
+>
+> ---
+>
+> 🇺🇸 **English**
 > 
-> 🇺🇸 **EN**: This project is strictly for educational and research purposes. Users are solely responsible for compliance with all applicable laws and regulations in their jurisdiction.
+> **FOR RESEARCH AND EDUCATIONAL PURPOSES ONLY.** This software is provided strictly for studying prediction market mechanics, API integration, and algorithmic trading concepts. **DO NOT use this code for actual trading with real money.** The authors assume NO responsibility for any financial losses. Using this software for real trading is entirely at your own risk. Users must comply with all applicable laws and regulations in their jurisdiction.
+>
+> ---
+>
+> 🇨🇳 **中文**
 > 
-> 🇨🇳 **中文**: 本项目仅供教育和研究目的。用户须自行负责遵守所在地区的法律法规。
+> **仅供研究和教育目的。** 本软件仅用于学习预测市场机制、API集成和算法交易概念。**严禁将此代码用于真实资金交易。** 作者对任何经济损失概不负责。若用于真实交易，风险完全自负。用户须自行遵守所在地区的法律法规。
+>
+> ---
+>
+> 🇯🇵 **日本語**
 > 
-> 🇯🇵 **日本語**: 本プロジェクトは教育・研究目的のみ。ユーザーは現地の法規制を遵守する責任を負います。
+> **研究・教育目的のみ。** 本ソフトウェアは予測市場の仕組み、API統合、アルゴリズム取引の概念を学習するためのものです。**実際の取引には絶対に使用しないでください。** 作者は一切の経済的損失について責任を負いません。実際の取引に使用する場合、すべてのリスクはご自身が負います。
+>
+> ---
+>
+> 🇰🇷 **한국어**
 > 
-> 🇪🇸 **ES**: Solo para fines educativos e investigación. Los usuarios deben cumplir con las leyes locales.
+> **연구 및 교육 목적으로만 사용.** 이 소프트웨어는 예측 시장 메커니즘, API 통합 및 알고리즘 트레이딩 개념 학습용입니다. **실제 거래에 사용하지 마십시오.** 저자는 어떠한 재정적 손실에 대해서도 책임지지 않습니다.
+>
+> ---
+>
+> 🇪🇸 **Español**
 > 
-> 🇫🇷 **FR**: Uniquement à des fins éducatives et de recherche. Respectez les lois locales.
+> **SOLO PARA INVESTIGACIÓN Y EDUCACIÓN.** Este software es únicamente para estudiar mercados de predicción y conceptos de trading algorítmico. **NO lo use para trading real.** Los autores NO asumen responsabilidad por pérdidas financieras.
+>
+> ---
+>
+> 🇫🇷 **Français**
 > 
-> 🇩🇪 **DE**: Nur für Bildungs- und Forschungszwecke. Lokale Gesetze beachten.
+> **UNIQUEMENT À DES FINS DE RECHERCHE ET D'ÉDUCATION.** Ce logiciel sert uniquement à étudier les marchés prédictifs. **NE PAS utiliser pour le trading réel.** Les auteurs déclinent toute responsabilité en cas de pertes financières.
+>
+> ---
+>
+> 🇩🇪 **Deutsch**
 > 
-> 🇷🇺 **RU**: Только для исследовательских и образовательных целей.
+> **NUR FÜR FORSCHUNGS- UND BILDUNGSZWECKE.** Diese Software dient ausschließlich dem Studium von Prognosemärkten. **NICHT für echten Handel verwenden.** Die Autoren übernehmen keine Haftung für finanzielle Verluste.
+>
+> ---
+>
+> 🇷🇺 **Русский**
 > 
-> 🇸🇦 **AR**: للأغراض البحثية والتعليمية فقط.
+> **ТОЛЬКО ДЛЯ ИССЛЕДОВАНИЙ И ОБУЧЕНИЯ.** Это ПО предназначено исключительно для изучения прогнозных рынков. **НЕ используйте для реальной торговли.** Авторы не несут ответственности за финансовые убытки.
+>
+> ---
+>
+> 🇵🇹 **Português**
 > 
-> 📜 **[Full Disclaimer in 16 Languages → LICENSE](LICENSE)**
+> **APENAS PARA PESQUISA E EDUCAÇÃO.** Este software serve apenas para estudar mercados de previsão. **NÃO use para negociação real.** Os autores NÃO assumem responsabilidade por perdas financeiras.
+>
+> ---
+>
+> 🇮🇹 **Italiano**
+> 
+> **SOLO PER RICERCA E SCOPI EDUCATIVI.** Questo software serve solo per studiare i mercati predittivi. **NON usare per il trading reale.** Gli autori NON sono responsabili per perdite finanziarie.
+>
+> ---
+>
+> 🇸🇦 **العربية**
+> 
+> **للأغراض البحثية والتعليمية فقط.** هذا البرنامج مخصص فقط لدراسة أسواق التنبؤ. **لا تستخدمه للتداول الحقيقي.** المؤلفون غير مسؤولين عن أي خسائر مالية.
+>
+> ---
+>
+> 🇮🇳 **हिन्दी**
+> 
+> **केवल अनुसंधान और शैक्षिक उद्देश्यों के लिए।** यह सॉफ्टवेयर केवल भविष्यवाणी बाजारों का अध्ययन करने के लिए है। **वास्तविक ट्रेडिंग के लिए उपयोग न करें।** लेखक किसी भी वित्तीय हानि के लिए जिम्मेदार नहीं हैं।
+>
+> ---
+>
+> 🇹🇷 **Türkçe**
+> 
+> **YALNIZCA ARAŞTIRMA VE EĞİTİM AMAÇLIDIR.** Bu yazılım yalnızca tahmin piyasalarını incelemek içindir. **Gerçek ticaret için KULLANMAYIN.** Yazarlar mali kayıplardan sorumlu değildir.
+>
+> ---
+>
+> 🇻🇳 **Tiếng Việt**
+> 
+> **CHỈ DÀNH CHO MỤC ĐÍCH NGHIÊN CỨU VÀ GIÁO DỤC.** Phần mềm này chỉ để nghiên cứu thị trường dự đoán. **KHÔNG sử dụng để giao dịch thực.** Tác giả không chịu trách nhiệm về bất kỳ tổn thất tài chính nào.
+>
+> ---
+>
+> 🇹🇭 **ไทย**
+> 
+> **สำหรับการวิจัยและการศึกษาเท่านั้น** ซอฟต์แวร์นี้มีไว้เพื่อศึกษาตลาดคาดการณ์เท่านั้น **ห้ามใช้สำหรับการซื้อขายจริง** ผู้เขียนไม่รับผิดชอบต่อการสูญเสียทางการเงินใดๆ
+>
+> ---
+>
+> 🇮🇩 **Bahasa Indonesia**
+> 
+> **HANYA UNTUK PENELITIAN DAN PENDIDIKAN.** Perangkat lunak ini hanya untuk mempelajari pasar prediksi. **JANGAN gunakan untuk trading nyata.** Penulis TIDAK bertanggung jawab atas kerugian finansial apapun.
+>
+> ---
+>
+> 📜 **[Full Legal Disclaimer → LICENSE](LICENSE)**
 > 
 > ---
 > 
